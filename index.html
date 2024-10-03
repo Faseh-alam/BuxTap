@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Phaser Scene Transition with Loading Screen</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+    // Ensure all classes are defined before Phaser configuration
+    var config = {
+        type: Phaser.AUTO,
+        width: 600,
+        height: 1200,
+        scale: {
+            mode: Phaser.Scale.FIT,          // Fit the game to the screen
+            autoCenter: Phaser.Scale.CENTER_BOTH,  // Center the game horizontally and vertically
+            width: 600,                      // Base width of your game
+            height: 1200                     // Base height of your game
+        }
+    };
+    // Loading Scene with Fake Progress Bar
+    class LoadingScene extends Phaser.Scene {
+        constructor() {
+            super({ key: 'LoadingScene' });
+        }
+
+        preload() {
+            console.log("Preload called in LoadingScene");
+            // Load assets here
+            this.load.image('bg', 'Assets/Background.png');
+            this.load.image('logo', 'Assets/Logo.png');
+            this.load.image('box1', 'Assets/Loading1.png');
+            this.load.image('box2', 'Assets/Loading2.png');
+            this.load.image('box3', 'Assets/Loading3.png');
+            this.load.image('box4', 'Assets/Loading4.png');
+            this.load.image('box5', 'Assets/Loading5.png');
+            this.load.image('brick', 'Assets/Loading1.png');
+            this.load.image('bggame', 'Assets/Mobile_BG.png');
+        }
+
+        create() {
+            console.log("Create called in LoadingScene");
+
+            // Add background
+            var bg = this.add.image(this.cameras.main.width / 2, this.cameras.main.height / 2, 'bg').setOrigin(0.5);
+            bg.setDisplaySize(this.cameras.main.width, this.cameras.main.height);
+
+            // Add logo at the top
+            this.add.image(this.cameras.main.width / 2, 150, 'logo').setOrigin(0.5);
+
+            // Progress bar background with semi-transparent color (#FFFFFF4D)
+            var progressBarBg = this.add.graphics();
+            progressBarBg.fillStyle(0xFFFFFF, 0.3);  // White color with 30% opacity
+            progressBarBg.fillRoundedRect(100, this.cameras.main.height - 150, 400, 10, 5);  // Rounded corners
+
+            // Create progress bar (empty initially)
+            this.progressBar = this.add.graphics();
+
+            // Loading text
+            var loadingText = this.add.text(this.cameras.main.width / 2, this.cameras.main.height - 80, "Loading...", {
+                fontSize: '20px',
+                fill: '#ffffff'
+            });
+            loadingText.setOrigin(0.5);
+
+            // Initialize boxes (set alpha to 0 for gradual reveal)
+            this.boxes = [
+                this.add.image(this.cameras.main.width / 2, this.cameras.main.height - 400, 'box1').setOrigin(0.5).setAlpha(0),
+                this.add.image(this.cameras.main.width / 2, this.cameras.main.height - 400, 'box2').setOrigin(0.5).setAlpha(0),
+                this.add.image(this.cameras.main.width / 2, this.cameras.main.height - 400, 'box3').setOrigin(0.5).setAlpha(0),
+                this.add.image(this.cameras.main.width / 2, this.cameras.main.height - 400, 'box4').setOrigin(0.5).setAlpha(0),
+                this.add.image(this.cameras.main.width / 2, this.cameras.main.height - 400, 'box5').setOrigin(0.5).setAlpha(0),
+
+            ];
+
+            this.currentBoxIndex = 0;
+            this.fakeProgress = 0;
+        }
+
+        update() {
+            // Simulate progress (fake loading bar)
+            if (this.fakeProgress < 1) {
+                this.fakeProgress += 0.009;  // Increment progress
+                this.progressBar.clear();
+                this.progressBar.fillStyle(0xffffff, 1);  // White color for the progress bar
+                this.progressBar.fillRoundedRect(100, this.cameras.main.height - 150, 400 * this.fakeProgress, 10, 5);  // Fill bar
+
+                // Update alpha for images as progress increases
+                var alphaIndex = Math.floor(this.fakeProgress * this.boxes.length);
+                for (var i = 0; i <= alphaIndex && i < this.boxes.length; i++) {
+                    this.boxes[i].setAlpha(1);
+                }
+            } else {
+                // Once loading is complete, transition to the next scene
+                this.scene.start('MainScene');
+            }
+        }
+    }
+
+    // Define the MainScene (the next screen)
+    class MainScene extends Phaser.Scene {
+        constructor() {
+            super({ key: 'MainScene' });
+        }
+
+//         create() {
+//             var bg = this.add.image(this.cameras.main.width / 2, this.cameras.main.height / 2, 'bggame').setOrigin(0.5);
+//             bg.setDisplaySize(this.cameras.main.width, this.cameras.main.height);
+// bg.setScrollFactor(0);
+//             // Initialize bricks
+//             this.bricks = [];  // Array to hold the bricks
+//             this.currentBrickY = this.cameras.main.height - 200;  // Starting Y position for the first brick
+//
+//             // Input event for tapping to add bricks
+//             this.input.on('pointerdown', this.addBrick, this);
+//         }
+
+        create() {
+            var bg = this.add.image(this.cameras.main.width / 2, this.cameras.main.height / 2, 'bggame').setOrigin(0.5);
+            bg.setDisplaySize(this.cameras.main.width, this.cameras.main.height);
+            bg.setScrollFactor(0);  // Make the background static (does not move with camera)
+
+            // Initialize bricks
+            this.bricks = [];  // Array to hold the bricks
+            this.currentBrickY = this.cameras.main.height - 200;  // Starting Y position for the first brick
+
+            // Track the number of bricks since the last recentering
+            this.bricksAddedSinceRecenter = 0;
+            this.bricksPerRecenter = 20;  // Number of bricks before camera recenters
+
+            // Input event for tapping to add bricks
+            this.input.on('pointerdown', this.addBrick, this);
+        }
+
+        // addBrick() {
+        //     // Add a new brick at the current position
+        //     var newBrick = this.add.image(this.cameras.main.width / 2, this.currentBrickY-120, 'brick').setOrigin(0.5);
+        //
+        //     // Push the new brick into the array (to track bricks if needed)
+        //     this.bricks.push(newBrick);
+        //
+        //     // Move the next brick position upwards
+        //     this.currentBrickY -= newBrick.height*0.09;
+        //
+        //     // Adjust Y position for the next brick
+        //
+        //     // Move the camera up if the bricks reach the center of the screen
+        //     if (newBrick.y < this.cameras.main.height / 2) {
+        //         // Adjust camera's vertical scroll
+        //         this.cameras.main.scrollY -= newBrick.height * 0.09;  // Move camera up smoothly as the bricks stack
+        //     }
+        // }
+
+        addBrick() {
+            // Add a new brick at the current position
+            var newBrick = this.add.image(this.cameras.main.width / 2, this.currentBrickY-130, 'brick').setOrigin(0.5);
+
+            // Push the new brick into the array (to track bricks if needed)
+            this.bricks.push(newBrick);
+
+            // Move the next brick position upwards
+            this.currentBrickY -= newBrick.height * 0.09;  // Adjust Y position for the next brick
+
+            // Increment the number of bricks since the last recenter
+            this.bricksAddedSinceRecenter++;
+
+            // Only recenter the camera after adding 5 bricks
+            if (this.bricksAddedSinceRecenter >= this.bricksPerRecenter) {
+                // Move the camera to recenter after adding 5 bricks
+                this.recenterCamera();
+                this.bricksPerRecenter=8;
+            }
+        }
+
+        recenterCamera() {
+            // Tween to move the camera back to the center of the screen smoothly
+            this.tweens.add({
+                targets: this.cameras.main,
+                scrollY: this.currentBrickY - this.cameras.main.height / 2 + 200,  // Smoothly move the camera
+                duration: 500,
+                ease: 'Power2',
+                onComplete: () => {
+                    this.bricksAddedSinceRecenter = 0;  // Reset the counter for added bricks
+                }
+            });
+        }
+    }
+
+    // Phaser Game Configuration
+    var config = {
+        type: Phaser.AUTO,
+        width: 600,
+        height: 1200,
+        scene: [LoadingScene, MainScene]  // Register both scenes here
+    };
+
+    var game = new Phaser.Game(config);
+
+</script>
+
+</body>
+</html>
