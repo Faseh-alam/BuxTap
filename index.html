@@ -14,6 +14,17 @@
 <body>
 
 <script type="text/javascript">
+    // Initialize Telegram Web App
+    window.Telegram.WebApp.ready();
+
+    // Log when the WebApp is opened
+    const user = window.Telegram.WebApp.initDataUnsafe.user;
+    if (user) {
+        console.log(`Logged in as ${user.first_name} ${user.last_name}`);
+    } else {
+        console.log('User is not logged in.');
+    }
+
     // Ensure all classes are defined before Phaser configuration
     var config = {
         type: Phaser.AUTO,
@@ -26,11 +37,6 @@
             height: 1200                     // Base height of your game
         }
     };
-
-    // Initialize Telegram Web App SDK
-    window.Telegram.WebApp.ready();
-    const user = window.Telegram.WebApp.initDataUnsafe.user;
-    console.log(`Logged in as ${user.first_name} ${user.last_name}`);
 
     // Loading Scene with Fake Progress Bar
     class LoadingScene extends Phaser.Scene {
@@ -135,7 +141,7 @@
 
         addBrick() {
             // Add a new brick at the current position
-            var newBrick = this.add.image(this.cameras.main.width / 2, this.currentBrickY - 130, 'brick').setOrigin(0.5);
+            var newBrick = this.add.image(this.cameras.main.width / 2, this.currentBrickY-130, 'brick').setOrigin(0.5);
 
             // Push the new brick into the array (to track bricks if needed)
             this.bricks.push(newBrick);
@@ -150,7 +156,7 @@
             if (this.bricksAddedSinceRecenter >= this.bricksPerRecenter) {
                 // Move the camera to recenter after adding 5 bricks
                 this.recenterCamera();
-                this.bricksPerRecenter = 8;
+                this.bricksPerRecenter=8;
             }
         }
 
