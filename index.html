@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Phaser Scene Transition with Loading Screen</title>
+    <title>Phaser Scene with Telegram Wallet Integration</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
     <script async src="https://telegram.org/js/telegram-web-app.js"></script>
     <style type="text/css">
@@ -21,10 +21,13 @@
             window.Telegram.WebApp.ready();
             console.log("Telegram Web App is ready.");
 
-            // Additional check for user data (if needed)
+            // Fetch user data from Telegram
             const user = window.Telegram.WebApp.initDataUnsafe.user;
             if (user) {
                 console.log(`Logged in as ${user.first_name} ${user.last_name}`);
+                // Example: Displaying user's name
+                const userInfo = `Welcome, ${user.first_name}!`;
+                document.body.insertAdjacentHTML('beforeend', `<div id="userInfo">${userInfo}</div>`);
             } else {
                 console.log('User is not logged in.');
             }
@@ -134,7 +137,7 @@
         }
 
         addBrick() {
-            var newBrick = this.add.image(this.cameras.main.width / 2, this.currentBrickY-130, 'brick').setOrigin(0.5);
+            var newBrick = this.add.image(this.cameras.main.width / 2, this.currentBrickY - 130, 'brick').setOrigin(0.5);
             this.bricks.push(newBrick);
             this.currentBrickY -= newBrick.height * 0.09;
             this.bricksAddedSinceRecenter++;
