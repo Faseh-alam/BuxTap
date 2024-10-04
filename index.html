@@ -139,18 +139,11 @@
         }
 
         connectWallet() {
-            // Use Tonkeeper to connect the wallet
-            Tonkeeper.connect()
-                .then(wallet => {
-                    console.log("Wallet connected: ", wallet);
-                    console.log("Connected wallet address: ", wallet.address);
+            const tonkeeperUrl = "https://app.tonkeeper.com/transfer?recipient=YOUR_WALLET_ADDRESS";
+            window.open(tonkeeperUrl, "_blank");  // Open in a new tab or replace with in-app browser logic
 
-                    // Transition to the main scene after wallet connection
-                    this.scene.start('MainScene');
-                })
-                .catch(err => {
-                    console.error("Error connecting wallet: ", err);
-                });
+            // After wallet connection, transition to the MainScene
+            this.scene.start('MainScene');
         }
     }
 
