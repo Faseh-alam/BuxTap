@@ -138,12 +138,16 @@
             connectButton.on('pointerdown', this.connectWallet, this);
         }
 
-        connectWallet() {
+        async connectWallet() {
+            console.log("Attempting to connect to Tonkeeper...");
             const tonkeeperUrl = "https://app.tonkeeper.com/transfer?recipient=YOUR_WALLET_ADDRESS";
-            window.open(tonkeeperUrl, "_blank");  // Open in a new tab or replace with in-app browser logic
+            // Open Tonkeeper in a new tab (or within the Telegram Web App if allowed)
+            window.open(tonkeeperUrl, "_blank");
 
-            // After wallet connection, transition to the MainScene
-            this.scene.start('MainScene');
+            // Add a slight delay before transitioning to the next scene to simulate wallet connection.
+            setTimeout(() => {
+                this.scene.start('MainScene');
+            }, 2000); // 2 seconds delay for better UX
         }
     }
 
