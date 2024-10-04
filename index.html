@@ -25,9 +25,6 @@
             const user = window.Telegram.WebApp.initDataUnsafe.user;
             if (user) {
                 console.log(`Logged in as ${user.first_name} ${user.last_name}`);
-                // Example: Displaying user's name
-                const userInfo = `Welcome, ${user.first_name}!`;
-                document.body.insertAdjacentHTML('beforeend', `<div id="userInfo">${userInfo}</div>`);
             } else {
                 console.log('User is not logged in.');
             }
@@ -43,7 +40,7 @@
                     width: 600,
                     height: 1200
                 },
-                scene: [LoadingScene, MainScene]
+                scene: [LoadingScene, ConnectWalletScene, MainScene] // Adding new ConnectWalletScene
             };
 
             var game = new Phaser.Game(config);
@@ -73,7 +70,6 @@
 
         create() {
             console.log("Creating LoadingScene.");
-
             var bg = this.add.image(this.cameras.main.width / 2, this.cameras.main.height / 2, 'bg').setOrigin(0.5);
             bg.setDisplaySize(this.cameras.main.width, this.cameras.main.height);
 
@@ -113,11 +109,42 @@
                     this.boxes[i].setAlpha(1);
                 }
             } else {
-                this.scene.start('MainScene');
+                this.scene.start('ConnectWalletScene'); // Transition to ConnectWalletScene
             }
         }
     }
 
+    // New Connect Wallet Scene
+    class ConnectWalletScene extends Phaser.Scene {
+        constructor() {
+            super({ key: 'ConnectWalletScene' });
+        }
+
+        create() {
+            console.log("Creating ConnectWalletScene.");
+            var bg = this.add.image(this.cameras.main.width / 2, this.cameras.main.height / 2, 'bggame').setOrigin(0.5);
+            bg.setDisplaySize(this.cameras.main.width, this.cameras.main.height);
+
+            let connectButton = this.add.text(this.cameras.main.width / 2, this.cameras.main.height / 2, 'Connect Wallet', {
+                fontSize: '24px',
+                fill: '#ffffff',
+                backgroundColor: '#28a745',
+                padding: { left: 20, right: 20, top: 10, bottom: 10 }
+            }).setOrigin(0.5).setInteractive();
+
+            connectButton.on('pointerdown', this.connectWallet, this);
+        }
+
+        connectWallet() {
+            // Simulate wallet connection (you can replace this with actual wallet SDK logic)
+            console.log("Wallet connected successfully!");
+
+            // After wallet connection, transition to the MainScene
+            this.scene.start('MainScene');
+        }
+    }
+
+    // Main Scene for the actual game
     class MainScene extends Phaser.Scene {
         constructor() {
             super({ key: 'MainScene' });
