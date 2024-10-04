@@ -5,6 +5,7 @@
     <title>Phaser Scene with Telegram Wallet Integration</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
     <script async src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://tonkeeper.com/sdk.js"></script> <!-- Tonkeeper SDK -->
     <style type="text/css">
         body {
             margin: 0;
@@ -126,6 +127,7 @@
             bg.setDisplaySize(this.cameras.main.width, this.cameras.main.height);
             this.add.image(this.cameras.main.width / 2, 150, 'logo').setOrigin(0.5);
             this.add.image(this.cameras.main.width / 2, this.cameras.main.height - 400, 'box5').setOrigin(0.5);
+
             let connectButton = this.add.text(this.cameras.main.width / 2, this.cameras.main.height / 1.1, 'Connect Wallet', {
                 fontSize: '24px',
                 fill: '#ffffff',
@@ -137,11 +139,18 @@
         }
 
         connectWallet() {
-            // Simulate wallet connection (you can replace this with actual wallet SDK logic)
-            console.log("Wallet connected successfully!");
+            // Use Tonkeeper to connect the wallet
+            Tonkeeper.connect()
+                .then(wallet => {
+                    console.log("Wallet connected: ", wallet);
+                    console.log("Connected wallet address: ", wallet.address);
 
-            // After wallet connection, transition to the MainScene
-            this.scene.start('MainScene');
+                    // Transition to the main scene after wallet connection
+                    this.scene.start('MainScene');
+                })
+                .catch(err => {
+                    console.error("Error connecting wallet: ", err);
+                });
         }
     }
 
